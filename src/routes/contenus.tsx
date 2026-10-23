@@ -117,7 +117,7 @@ function Row({ item, open, toggle }: { item: ContentItem; open: boolean; toggle:
               </span>
             )}
           </div>
-          {msg && <p className="text-sm font-bold text-success" role="status">{msg}</p>}
+          {msg && <p className={`text-sm font-bold ${msg.startsWith("Erreur") ? "text-destructive" : "text-success"}`} role={msg.startsWith("Erreur") ? "alert" : "status"}>{msg}</p>}
           <label className="block text-xs font-bold uppercase text-muted-foreground" htmlFor={`t-${item.id}`}>Titre</label>
           <input id={`t-${item.id}`} className="field" value={draft.title} onChange={(e) => setDraft({ ...draft, title: e.target.value })} />
           {draft.weeklyPlan !== undefined && <PlanCard plan={draft.weeklyPlan} onChange={(p) => setDraft({ ...draft, weeklyPlan: p })} />}

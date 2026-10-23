@@ -1,10 +1,6 @@
 import { useState } from "react";
 import { z } from "zod";
-import { Mail } from "lucide-react";
 import { CopyButton } from "./CopyButton";
-
-/** À CONFIGURER : remplace par ta vraie adresse avant lancement. */
-export const CONTACT_EMAIL_PLACEHOLDER = "contact@example.com";
 
 const schema = z.object({
   email: z.string().trim().email("Adresse e-mail invalide").max(255),
@@ -30,10 +26,6 @@ export function FeedbackForm() {
     setErrors({});
     setReady(`Objet : ClubPost — ${v.type}\n\nE-mail : ${r.data.email}\nClub : ${r.data.club || "—"}\n\n${r.data.message}`);
   };
-
-  const mailto = ready
-    ? `mailto:${CONTACT_EMAIL_PLACEHOLDER}?subject=${encodeURIComponent(`ClubPost — ${v.type}`)}&body=${encodeURIComponent(ready)}`
-    : "";
 
   return (
     <form onSubmit={submit} noValidate className="card-surface space-y-4 p-5 sm:p-6">
@@ -74,9 +66,8 @@ export function FeedbackForm() {
           <pre className="mb-3 whitespace-pre-wrap rounded-lg bg-card p-3 text-xs text-foreground">{ready}</pre>
           <div className="flex flex-wrap gap-2">
             <CopyButton text={ready} label="Copier ma demande" className="btn btn-ink btn-sm" />
-            <a href={mailto} className="btn btn-outline btn-sm"><Mail size={14} aria-hidden /> Ouvrir ma messagerie</a>
           </div>
-          <p className="mt-2 text-xs">⚠️ Adresse provisoire « {CONTACT_EMAIL_PLACEHOLDER} » — à configurer par le propriétaire du site avant lancement.</p>
+          <p className="mt-2 text-xs">Colle le texte copié dans ta messagerie pour envoyer ta demande. L’envoi automatique n’est pas configuré dans cette bêta.</p>
         </div>
       )}
     </form>
