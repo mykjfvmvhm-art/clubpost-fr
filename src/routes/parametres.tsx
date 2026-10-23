@@ -10,21 +10,10 @@ import type { ClubProfile, ContentItem } from "@/lib/types";
 export const Route = createFileRoute("/parametres")({
   head: () => ({
     meta: [
-      {
-        title: "Paramètres — ClubPost",
-      },
-      {
-        name: "description",
-        content: "Gère tes données locales et crée une sauvegarde de ClubPost.",
-      },
-      {
-        property: "og:title",
-        content: "Paramètres — ClubPost",
-      },
-      {
-        property: "og:description",
-        content: "Sauvegarder, restaurer ou réinitialiser les données locales de ClubPost.",
-      },
+      { title: "Paramètres — ClubPost" },
+      { name: "description", content: "Gère tes données locales et crée une sauvegarde de ClubPost." },
+      { property: "og:title", content: "Paramètres — ClubPost" },
+      { property: "og:description", content: "Sauvegarder, restaurer ou réinitialiser les données locales de ClubPost." },
     ],
   }),
   component: Settings,
@@ -35,6 +24,7 @@ type Action = "contents" | "profile" | "all";
 function Settings() {
   const [pending, setPending] = useState<Action | null>(null);
   const [msg, setMsg] = useState("");
+  const [msgError, setMsgError] = useState(false);
   const [backupMsg, setBackupMsg] = useState("");
   const [backupError, setBackupError] = useState(false);
   const [pendingBackup, setPendingBackup] = useState<ClubPostBackup | null>(null);
@@ -49,14 +39,31 @@ function Settings() {
   };
 
   const doIt = (action: Action) => {
-    let ok = true;
-    if (action !== "profile") ok = writeJSON(CONTENTS_KEY, null) && ok;
-    if (action !== "contents") ok = writeJSON(PROFILE_KEY, null) && ok;
+    const previousContents = readJSON<ContentItem[]>(CONTENTS_KEY, []);
+    const previousProfile = readJSON<ClubProfile | null>(PROFILE_KEY, null);
+    const contentsChanged = action !== "profile";
+    const profileChanged = action !== "contents";
+
+    const contentsOk = !contentsChanged || writeJSON(CONTENTS_KEY, null);
+    const profileOk = !profileChanged || writeJSON(PROFILE_KEY, null);
+
     setPending(null);
+    if (contentsOk && profileOk) {
+      setMsgError(false);
+      setMsg("Données supprimées de ce navigateur.");
+      return;
+    }
+
+    // If one part of a multi-key reset fails, attempt to restore the previous
+    // values so the user is not left with a silently half-reset app.
+    let rollbackOk = true;
+    if (contentsChanged) rollbackOk = writeJSON(CONTENTS_KEY, previousContents) && rollbackOk;
+    if (profileChanged) rollbackOk = writeJSON(PROFILE_KEY, previousProfile) && rollbackOk;
+    setMsgError(true);
     setMsg(
-      ok
-        ? "Données supprimées de ce navigateur."
-        : "Erreur : impossible d'accéder au stockage.",
+      rollbackOk
+        ? "La suppression a échoué. Les données précédentes ont été restaurées."
+        : "La suppression a échoué et la restauration automatique n'a pas pu être confirmée. Vérifie tes données et restaure une sauvegarde si nécessaire.",
     );
   };
 
@@ -98,10 +105,14 @@ function Settings() {
       return;
     }
     if (!writeJSON(PROFILE_KEY, backup.profile)) {
-      writeJSON(CONTENTS_KEY, previousContents);
-      writeJSON(PROFILE_KEY, previousProfile);
+      const contentsRestored = writeJSON(CONTENTS_KEY, previousContents);
+      const profileRestored = writeJSON(PROFILE_KEY, previousProfile);
       setBackupError(true);
-      setBackupMsg("Impossible d'enregistrer le profil. La restauration a échoué ; vérifie que tes données actuelles sont toujours présentes.");
+      setBackupMsg(
+        contentsRestored && profileRestored
+          ? "Impossible d'enregistrer le profil. La restauration a échoué ; tes données précédentes ont été restaurées."
+          : "Impossible d'enregistrer le profil et la restauration automatique n'a pas pu être confirmée. Vérifie tes données et restaure une sauvegarde si nécessaire.",
+      );
       return;
     }
 
@@ -123,6 +134,12 @@ function Settings() {
     }
   };
 
+  const loadSample = () => {
+    const ok = writeJSON(PROFILE_KEY, SAMPLE_PROFILE);
+    setMsgError(!ok);
+    setMsg(ok ? "Profil fictif Studio Atlas chargé." : "Erreur : impossible d'accéder au stockage.");
+  };
+
   return (
     <div className="mx-auto max-w-2xl px-4 py-8">
       <PageHeader eyebrow="Paramètres" title="Données et sauvegarde">
@@ -131,9 +148,7 @@ function Settings() {
 
       <section className="card-surface mb-5 space-y-4 p-5" aria-labelledby="backup-title">
         <div>
-          <h2 id="backup-title" className="text-lg font-bold">
-            Sauvegarder mes données
-          </h2>
+          <h2 id="backup-title" className="text-lg font-bold">Sauvegarder mes données</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             Le fichier JSON contient ton profil de club et tous tes contenus sauvegardés. Il reste sur ton appareil jusqu'à ce que tu choisisses de le partager.
           </p>
@@ -143,17 +158,8 @@ function Settings() {
           {storageLoaded ? "Télécharger ma sauvegarde" : "Chargement des données…"}
         </button>
         <div className="space-y-2">
-          <label htmlFor="restore-backup" className="block text-sm font-bold">
-            Restaurer une sauvegarde ClubPost
-          </label>
-          <input
-            id="restore-backup"
-            type="file"
-            accept="application/json,.json"
-            className="field"
-            onChange={importFile}
-            disabled={!storageLoaded}
-          />
+          <label htmlFor="restore-backup" className="block text-sm font-bold">Restaurer une sauvegarde ClubPost</label>
+          <input id="restore-backup" type="file" accept="application/json,.json" className="field" onChange={importFile} disabled={!storageLoaded} />
           <p className="text-xs text-muted-foreground">
             La restauration remplace le profil et la bibliothèque présents dans ce navigateur. Exporte d'abord une sauvegarde si tu veux conserver les données actuelles.
           </p>
@@ -162,9 +168,7 @@ function Settings() {
               <p className="text-sm font-bold">Remplacer les données actuelles par cette sauvegarde ?</p>
               <p className="mt-1 text-xs text-muted-foreground">Cette action remplace ton profil et tous les contenus enregistrés dans ce navigateur.</p>
               <div className="mt-3 flex flex-col gap-2 sm:flex-row">
-                <button type="button" className="btn btn-danger" onClick={restoreBackup}>
-                  Confirmer la restauration
-                </button>
+                <button type="button" className="btn btn-danger" onClick={restoreBackup}>Confirmer la restauration</button>
                 <button
                   type="button"
                   className="btn btn-outline"
@@ -181,54 +185,25 @@ function Settings() {
           )}
         </div>
         {backupMsg && (
-          <p
-            className={`text-sm font-bold ${backupError ? "text-destructive" : "text-success"}`}
-            role="status"
-          >
+          <p className={`text-sm font-bold ${backupError ? "text-destructive" : "text-success"}`} role="status">
             {backupMsg}
           </p>
         )}
       </section>
 
       <section className="card-surface space-y-4 p-5" aria-labelledby="reset-title">
-        <h2 id="reset-title" className="text-lg font-bold">
-          Réinitialisation
-        </h2>
-        <button
-          type="button"
-          className="btn btn-outline w-full"
-          onClick={() =>
-            setMsg(
-              writeJSON(PROFILE_KEY, SAMPLE_PROFILE)
-                ? "Profil fictif Studio Atlas chargé."
-                : "Erreur de stockage.",
-            )
-          }
-        >
+        <h2 id="reset-title" className="text-lg font-bold">Réinitialisation</h2>
+        <button type="button" className="btn btn-outline w-full" onClick={loadSample}>
           Charger le profil d'exemple (Studio Atlas, fictif)
         </button>
         {(Object.keys(labels) as Action[]).map((action) => (
           <div key={action}>
             {pending === action ? (
               <div className="rounded-xl bg-warning p-3 text-warning-foreground" role="alert">
-                <p className="mb-2 text-sm font-bold">
-                  Confirmer : « {labels[action]} » ? Action irréversible.
-                </p>
+                <p className="mb-2 text-sm font-bold">Confirmer : « {labels[action]} » ? Action irréversible.</p>
                 <div className="flex gap-2">
-                  <button
-                    type="button"
-                    className="btn btn-danger btn-sm"
-                    onClick={() => doIt(action)}
-                  >
-                    Oui, supprimer
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-outline btn-sm"
-                    onClick={() => setPending(null)}
-                  >
-                    Annuler
-                  </button>
+                  <button type="button" className="btn btn-danger btn-sm" onClick={() => doIt(action)}>Oui, supprimer</button>
+                  <button type="button" className="btn btn-outline btn-sm" onClick={() => setPending(null)}>Annuler</button>
                 </div>
               </div>
             ) : (
@@ -238,6 +213,7 @@ function Settings() {
                 onClick={() => {
                   setPending(action);
                   setMsg("");
+                  setMsgError(false);
                 }}
               >
                 {labels[action]}
@@ -246,7 +222,7 @@ function Settings() {
           </div>
         ))}
         {msg && (
-          <p className="text-sm font-bold" role="status">
+          <p className={`text-sm font-bold ${msgError ? "text-destructive" : "text-success"}`} role={msgError ? "alert" : "status"}>
             {msg}
           </p>
         )}
