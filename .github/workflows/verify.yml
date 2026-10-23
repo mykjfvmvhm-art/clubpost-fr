@@ -27,8 +27,11 @@ jobs:
         with:
           node-version: 22
 
+      - name: Utiliser une version stable de npm
+        run: npm install --global npm@10.8.2
+
       - name: Installer les dépendances
-        run: npm install
+        run: npm install --no-audit --no-fund
 
       - name: Exécuter les tests
         run: npm test
