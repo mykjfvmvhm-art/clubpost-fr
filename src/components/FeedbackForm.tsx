@@ -32,10 +32,10 @@ export function FeedbackForm() {
       <fieldset>
         <legend className="mb-2 text-sm font-bold">Je veux…</legend>
         <div className="flex flex-wrap gap-2">
-          {["Avis", "Accès bêta", "Question"].map((t) => (
+          {["Commander un pack", "Avis", "Accès bêta", "Question"].map((t) => (
             <label key={t} className={`chip cursor-pointer border ${v.type === t ? "bg-lime" : "bg-card"}`}>
               <input type="radio" name="type" className="sr-only" checked={v.type === t} onChange={() => setV({ ...v, type: t })} />
-              {t === "Avis" ? "Donner mon avis" : t === "Accès bêta" ? "Demander un accès bêta" : "Poser une question"}
+              {t === "Commander un pack" ? "Commander un pack" : t === "Avis" ? "Donner mon avis" : t === "Accès bêta" ? "Demander un accès bêta" : "Poser une question"}
             </label>
           ))}
         </div>
