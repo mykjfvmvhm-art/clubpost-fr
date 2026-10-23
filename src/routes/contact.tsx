@@ -13,7 +13,7 @@ export const Route = createFileRoute("/contact")({
   }),
   component: () => (
     <div className="mx-auto max-w-3xl px-4 py-8">
-      <PageHeader eyebrow="Contact" title="Donner mon avis / demander un accès bêta" />
+      <PageHeader eyebrow="Contact & demandes" title="Demander un pack, poser une question ou donner mon avis" />
       <FeedbackForm />
     </div>
   ),
