@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { Download, Upload } from "lucide-react";
+import { Download } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
-import { CONTENTS_KEY, PROFILE_KEY, readJSON, writeJSON } from "@/lib/storage";
+import { CONTENTS_KEY, PROFILE_KEY, readJSON, useContents, useProfile, writeJSON } from "@/lib/storage";
 import { SAMPLE_PROFILE } from "@/lib/sample";
 import { downloadBackup, parseBackup } from "@/lib/backup";
 import type { ClubProfile, ContentItem } from "@/lib/types";
@@ -36,8 +36,9 @@ function Settings() {
   const [pending, setPending] = useState<Action | null>(null);
   const [msg, setMsg] = useState("");
   const [backupMsg, setBackupMsg] = useState("");
-  const [profile] = useState(() => readJSON<ClubProfile | null>(PROFILE_KEY, null));
-  const [contents] = useState(() => readJSON<ContentItem[]>(CONTENTS_KEY, []));
+  const [backupError, setBackupError] = useState(false);
+  const [profile] = useProfile();
+  const [contents] = useContents();
 
   const labels: Record<Action, string> = {
     contents: "Supprimer tous mes contenus",
@@ -63,6 +64,7 @@ function Settings() {
     if (!file) return;
 
     setBackupMsg("");
+    setBackupError(false);
     try {
       const backup = parseBackup(await file.text());
       const previousContents = readJSON<ContentItem[]>(CONTENTS_KEY, []);
@@ -81,6 +83,7 @@ function Settings() {
         `Sauvegarde restaurée : ${backup.contents.length} contenu(s) et ${backup.profile ? "un profil club" : "aucun profil club"}.`,
       );
     } catch (error) {
+      setBackupError(true);
       setBackupMsg(
         error instanceof Error
           ? error.message
@@ -94,8 +97,10 @@ function Settings() {
   const exportFile = () => {
     try {
       downloadBackup(profile, contents);
+      setBackupError(false);
       setBackupMsg("Sauvegarde téléchargée. Conserve ce fichier en lieu sûr.");
     } catch {
+      setBackupError(true);
       setBackupMsg("Le téléchargement a échoué. Réessaie depuis un autre navigateur.");
     }
   };
@@ -136,7 +141,7 @@ function Settings() {
         </div>
         {backupMsg && (
           <p
-            className={`text-sm font-bold ${backupMsg.includes("échoué") || backupMsg.startsWith("Impossible") || backupMsg.startsWith("Le téléchargement") ? "text-destructive" : "text-success"}`}
+            className={`text-sm font-bold ${backupError ? "text-destructive" : "text-success"}`}
             role="status"
           >
             {backupMsg}
