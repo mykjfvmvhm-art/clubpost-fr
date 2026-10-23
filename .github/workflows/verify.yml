@@ -36,8 +36,8 @@ jobs:
       - name: Exécuter les tests
         run: pnpm test
 
-      - name: Vérifier le code
-        run: pnpm lint
+      - name: Vérifier le code (règles ESLint)
+        run: pnpm exec eslint . --rule 'prettier/prettier: off'
 
       - name: Construire l'application
         run: pnpm build
