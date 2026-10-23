@@ -42,6 +42,7 @@ function Index() {
             <div className="mt-7 flex flex-wrap gap-3">
               <Link to="/generateur" className="btn btn-ink px-6 py-3 text-base">Créer mon premier kit <ArrowRight size={18} aria-hidden /></Link>
               <Link to="/generateur" search={{ demo: 1 }} className="btn btn-outline px-6 py-3 text-base">Tester avec un exemple</Link>
+              <Link to="/offres" className="btn btn-outline px-6 py-3 text-base">Packs de contenus pour ton club</Link>
             </div>
             <p className="mt-4 text-xs text-muted-foreground">Générateur de démonstration à base de modèles — pas d'IA, pas de publication automatique, pas de compte.</p>
           </div>
