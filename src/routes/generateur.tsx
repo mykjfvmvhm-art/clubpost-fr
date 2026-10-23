@@ -152,7 +152,7 @@ function Generator() {
                 <Wand2 className="mx-auto mb-3 text-muted-foreground" aria-hidden />
                 <p className="font-bold">Aucun contenu généré</p>
                 <p className="text-sm text-muted-foreground">Choisis un objectif et un format, puis clique sur « Générer ».</p>
-                <Link to="/generateur" search={{ demo: 1 }} className="btn btn-outline btn-sm mt-4">Voir un exemple de kit</Link>
+                <Link to="/generateur" search={{ demo: 1 }} className="btn btn-outline btn-sm mt-4">Tester avec un exemple</Link>
               </div>
             </div>
           ) : (
