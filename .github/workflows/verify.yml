@@ -1,0 +1,40 @@
+name: Vérifications du projet
+
+on:
+  push:
+    branches:
+      - main
+      - "chore/**"
+      - "fix/**"
+      - "feat/**"
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Tests, lint et build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+
+      - name: Installer Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Installer les dépendances
+        run: npm install
+
+      - name: Exécuter les tests
+        run: npm test
+
+      - name: Vérifier le code
+        run: npm run lint
+
+      - name: Construire l'application
+        run: npm run build
