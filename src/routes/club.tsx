@@ -76,13 +76,13 @@ function Club() {
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label htmlFor="c-name" className="mb-1 block text-sm font-bold">Nom du club *</label>
-            <input id="c-name" className="field" maxLength={60} value={v.name} aria-invalid={!!errors.name} onChange={(e) => f("name", e.target.value)} />
-            {errors.name && <p className="mt-1 text-sm text-destructive">{errors.name}</p>}
+            <input id="c-name" className="field" maxLength={60} value={v.name} aria-invalid={!!errors["name"]} onChange={(e) => f("name", e.target.value)} />
+            {errors["name"] && <p className="mt-1 text-sm text-destructive">{errors["name"]}</p>}
           </div>
           <div>
             <label htmlFor="c-town" className="mb-1 block text-sm font-bold">Ville *</label>
-            <input id="c-town" className="field" maxLength={60} value={v.town} aria-invalid={!!errors.town} onChange={(e) => f("town", e.target.value)} />
-            {errors.town && <p className="mt-1 text-sm text-destructive">{errors.town}</p>}
+            <input id="c-town" className="field" maxLength={60} value={v.town} aria-invalid={!!errors["town"]} onChange={(e) => f("town", e.target.value)} />
+            {errors["town"] && <p className="mt-1 text-sm text-destructive">{errors["town"]}</p>}
           </div>
           <div>
             <label htmlFor="c-sport" className="mb-1 block text-sm font-bold">Sport</label>

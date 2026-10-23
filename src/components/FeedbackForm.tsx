@@ -51,8 +51,8 @@ export function FeedbackForm() {
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label htmlFor="fb-email" className="mb-1 block text-sm font-bold">E-mail *</label>
-          <input id="fb-email" type="email" className="field" value={v.email} aria-invalid={!!errors.email} aria-describedby="fb-email-err" onChange={(e) => setV({ ...v, email: e.target.value })} />
-          {errors.email && <p id="fb-email-err" className="mt-1 text-sm text-destructive">{errors.email}</p>}
+          <input id="fb-email" type="email" className="field" value={v.email} aria-invalid={!!errors["email"]} aria-describedby="fb-email-err" onChange={(e) => setV({ ...v, email: e.target.value })} />
+          {errors["email"] && <p id="fb-email-err" className="mt-1 text-sm text-destructive">{errors["email"]}</p>}
         </div>
         <div>
           <label htmlFor="fb-club" className="mb-1 block text-sm font-bold">Club (optionnel)</label>
@@ -61,8 +61,8 @@ export function FeedbackForm() {
       </div>
       <div>
         <label htmlFor="fb-msg" className="mb-1 block text-sm font-bold">Message *</label>
-        <textarea id="fb-msg" rows={4} className="field" value={v.message} maxLength={1000} aria-invalid={!!errors.message} aria-describedby="fb-msg-err" onChange={(e) => setV({ ...v, message: e.target.value })} />
-        {errors.message && <p id="fb-msg-err" className="mt-1 text-sm text-destructive">{errors.message}</p>}
+        <textarea id="fb-msg" rows={4} className="field" value={v.message} maxLength={1000} aria-invalid={!!errors["message"]} aria-describedby="fb-msg-err" onChange={(e) => setV({ ...v, message: e.target.value })} />
+        {errors["message"] && <p id="fb-msg-err" className="mt-1 text-sm text-destructive">{errors["message"]}</p>}
       </div>
       <p className="text-xs text-muted-foreground">
         Rien n'est envoyé depuis ce site : aucun serveur n'est connecté. Ta demande est préparée ici, à toi de la copier ou de l'ouvrir dans ta messagerie.

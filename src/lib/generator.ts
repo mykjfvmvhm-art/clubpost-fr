@@ -14,7 +14,7 @@ function rng(seed: number) {
     return s / 4294967296;
   };
 }
-const pick = <T,>(r: () => number, arr: readonly T[]) => arr[Math.floor(r() * arr.length)];
+const pick = <T,>(r: () => number, arr: readonly T[]) => arr[Math.floor(r() * arr.length)] as T;
 
 const slug = (s: string) =>
   s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
@@ -137,7 +137,7 @@ export function buildContext(profile: ClubProfile | null, input: GenerateInput):
 }
 
 function hashtags(profile: ClubProfile | null, goal: GoalId, r: () => number) {
-  const tags = [...(SPORT_TAGS[profile?.sport ?? "Autre"] ?? SPORT_TAGS.Autre), ...GOAL_TAGS[goal]];
+  const tags = [...(SPORT_TAGS[profile?.sport ?? "Autre"] ?? []), ...GOAL_TAGS[goal]];
   const town = profile?.town ? slug(profile.town) : "";
   if (town) tags.push(`#${town}`, `#sport${town}`);
   if (profile?.name) tags.push(`#${slug(profile.name)}`);
@@ -168,14 +168,14 @@ function makePiece(kind: Piece["kind"], label: string, profile: ClubProfile | nu
       `Slide 5 — ${end}`,
       `Slide 6 — Appel à l'action : ${cta}`,
       ``,
-      `Légende courte : ${body.split("\n")[0]}`,
+      `Légende courte : ${(body.split("\n")[0] ?? "")}`,
     ].join("\n");
     visual = `Carrousel 6 slides, fond clair, titres gras${profile?.colors ? `, couleurs : ${profile.colors}` : ""}. ${visual}`;
   }
   if (kind === "story") {
     caption = [
       `Écran 1 : ${hook}`,
-      `Écran 2 : ${body.split("\n")[0]}`,
+      `Écran 2 : ${(body.split("\n")[0] ?? "")}`,
       `Écran 3 : sticker sondage « ${pick(r, ["Tu viens cette semaine ?", "Tu as déjà testé ?", "On se voit au club ?"])} » Oui / Bientôt`,
       `Écran 4 : sticker lien ou « Écris-nous » → ${cta}`,
     ].join("\n");
@@ -205,15 +205,15 @@ export function generate(profile: ClubProfile | null, input: GenerateInput, seed
   const n = Math.min(Math.max(input.variants, 1), 5);
   if (input.format === "weekly") {
     const goals: GoalId[] = [input.goal, input.goal === "conseils" ? "communaute" : "conseils", input.goal === "communaute" ? "essai" : "communaute"];
-    const posts = goals.map((g, i) => makePiece(i === 1 ? "carousel" : "post", `Post ${i + 1}`, profile, input, r, g));
-    const stories = goals.map((g, i) => makePiece("story", `Story ${i + 1}`, profile, input, r, g));
+    const posts: Piece[] = goals.map((g, i) => makePiece(i === 1 ? "carousel" : "post", `Post ${i + 1}`, profile, input, r, g));
+    const stories: Piece[] = goals.map((g, i) => makePiece("story", `Story ${i + 1}`, profile, input, r, g));
     const weeklyPlan = [
-      `Lundi — ${posts[0].label} : ${posts[0].hook}`,
-      `Mardi — ${stories[0].label} (coulisses / sondage)`,
-      `Mercredi — ${posts[1].label} (carrousel) : ${posts[1].hook}`,
-      `Jeudi — ${stories[1].label} (rappel du cours / question)`,
-      `Vendredi — ${posts[2].label} : ${posts[2].hook}`,
-      `Samedi — ${stories[2].label} (ambiance du week-end)`,
+      `Lundi — ${posts[0]!.label} : ${posts[0]!.hook}`,
+      `Mardi — ${stories[0]!.label} (coulisses / sondage)`,
+      `Mercredi — ${posts[1]!.label} (carrousel) : ${posts[1]!.hook}`,
+      `Jeudi — ${stories[1]!.label} (rappel du cours / question)`,
+      `Vendredi — ${posts[2]!.label} : ${posts[2]!.hook}`,
+      `Samedi — ${stories[2]!.label} (ambiance du week-end)`,
       `Dimanche — Repos, réponds aux messages et commentaires`,
       ``,
       `Horaires de publication conseillés : ${TODO} (à adapter à ton audience)`,
