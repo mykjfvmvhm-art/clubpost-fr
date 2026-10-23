@@ -37,8 +37,9 @@ function Settings() {
   const [msg, setMsg] = useState("");
   const [backupMsg, setBackupMsg] = useState("");
   const [backupError, setBackupError] = useState(false);
-  const [profile] = useProfile();
-  const [contents] = useContents();
+  const [profile, , profileLoaded] = useProfile();
+  const [contents, , contentsLoaded] = useContents();
+  const storageLoaded = profileLoaded && contentsLoaded;
 
   const labels: Record<Action, string> = {
     contents: "Supprimer tous mes contenus",
@@ -120,9 +121,9 @@ function Settings() {
             Le fichier JSON contient ton profil de club et tous tes contenus sauvegardés. Il reste sur ton appareil jusqu'à ce que tu choisisses de le partager.
           </p>
         </div>
-        <button type="button" className="btn btn-ink w-full" onClick={exportFile}>
+        <button type="button" className="btn btn-ink w-full" onClick={exportFile} disabled={!storageLoaded}>
           <Download size={16} aria-hidden />
-          Télécharger ma sauvegarde
+          {storageLoaded ? "Télécharger ma sauvegarde" : "Chargement des données…"}
         </button>
         <div className="space-y-2">
           <label htmlFor="restore-backup" className="block text-sm font-bold">
@@ -134,6 +135,7 @@ function Settings() {
             accept="application/json,.json"
             className="field"
             onChange={importFile}
+            disabled={!storageLoaded}
           />
           <p className="text-xs text-muted-foreground">
             La restauration remplace le profil et la bibliothèque présents dans ce navigateur. Exporte d'abord une sauvegarde si tu veux conserver les données actuelles.
