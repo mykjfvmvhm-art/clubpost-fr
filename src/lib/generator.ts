@@ -196,7 +196,7 @@ function makePiece(kind: Piece["kind"], label: string, profile: ClubProfile | nu
 export interface GenerateResult {
   title: string;
   pieces: Piece[];
-  weeklyPlan?: string;
+  weeklyPlan?: string | undefined;
 }
 
 export function generate(profile: ClubProfile | null, input: GenerateInput, seed = 1): GenerateResult {

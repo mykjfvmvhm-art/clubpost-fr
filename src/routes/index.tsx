@@ -26,7 +26,7 @@ const FAQ = [
 ];
 
 function Index() {
-  const sample = generate(SAMPLE_PROFILE, { goal: "essai", format: "caption", topic: "reprendre le sport en douceur", eventDetails: "", tone: "Motivant", cta: "", variants: 1 }, 3).pieces[0];
+  const sample = generate(SAMPLE_PROFILE, { goal: "essai", format: "caption", topic: "reprendre le sport en douceur", eventDetails: "", tone: "Motivant", cta: "", variants: 1 }, 3).pieces[0]!;
   return (
     <div>
       <section className="mx-auto max-w-6xl px-4 pb-12 pt-10 sm:pt-16">

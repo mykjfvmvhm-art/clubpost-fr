@@ -11,7 +11,7 @@ const FIELDS: { key: keyof Piece; label: string; rows: number }[] = [
   { key: "visual", label: "Idée visuelle", rows: 2 },
 ];
 
-export function PieceCard({ piece, onChange, onDelete }: { piece: Piece; onChange: (p: Piece) => void; onDelete?: () => void }) {
+export function PieceCard({ piece, onChange, onDelete }: { piece: Piece; onChange: (p: Piece) => void; onDelete?: (() => void) | undefined }) {
   return (
     <article className="card-surface p-4 sm:p-5">
       <header className="mb-3 flex flex-wrap items-center justify-between gap-2">

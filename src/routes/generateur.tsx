@@ -11,7 +11,7 @@ import { exportItem, itemToText } from "@/lib/export";
 import { FORMATS, GOALS, TONES, type ContentItem, type GenerateInput } from "@/lib/types";
 
 export const Route = createFileRoute("/generateur")({
-  validateSearch: (s: Record<string, unknown>): { demo?: number } => (s.demo ? { demo: 1 } : {}),
+  validateSearch: (s: Record<string, unknown>): { demo?: number } => (s["demo"] ? { demo: 1 } : {}),
   head: () => ({
     meta: [
       { title: "Générateur — ClubPost" },

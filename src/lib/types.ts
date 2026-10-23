@@ -52,7 +52,7 @@ export interface ContentItem {
   createdAt: number;
   updatedAt: number;
   pieces: Piece[];
-  weeklyPlan?: string;
+  weeklyPlan?: string | undefined;
 }
 
 export interface GenerateInput {
