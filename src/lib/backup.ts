@@ -64,7 +64,12 @@ export function createBackup(profile: ClubProfile | null, contents: ContentItem[
 
 export function parseBackup(raw: string): ClubPostBackup {
   if (raw.length > 5_000_000) throw new Error("Le fichier de sauvegarde dépasse 5 Mo.");
-  const json: unknown = JSON.parse(raw);
+  let json: unknown;
+  try {
+    json = JSON.parse(raw);
+  } catch {
+    throw new Error("Le fichier ne contient pas un JSON valide.");
+  }
   const result = backupSchema.safeParse(json);
   if (!result.success) {
     throw new Error("Ce fichier n'est pas une sauvegarde ClubPost valide.");
