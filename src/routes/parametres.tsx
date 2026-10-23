@@ -4,7 +4,7 @@ import { Download } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { CONTENTS_KEY, PROFILE_KEY, readJSON, useContents, useProfile, writeJSON } from "@/lib/storage";
 import { SAMPLE_PROFILE } from "@/lib/sample";
-import { downloadBackup, parseBackup } from "@/lib/backup";
+import { downloadBackup, parseBackup, type ClubPostBackup } from "@/lib/backup";
 import type { ClubProfile, ContentItem } from "@/lib/types";
 
 export const Route = createFileRoute("/parametres")({
@@ -37,6 +37,7 @@ function Settings() {
   const [msg, setMsg] = useState("");
   const [backupMsg, setBackupMsg] = useState("");
   const [backupError, setBackupError] = useState(false);
+  const [pendingBackup, setPendingBackup] = useState<ClubPostBackup | null>(null);
   const [profile, , profileLoaded] = useProfile();
   const [contents, , contentsLoaded] = useContents();
   const storageLoaded = profileLoaded && contentsLoaded;
@@ -66,22 +67,12 @@ function Settings() {
 
     setBackupMsg("");
     setBackupError(false);
+    setPendingBackup(null);
     try {
       const backup = parseBackup(await file.text());
-      const previousContents = readJSON<ContentItem[]>(CONTENTS_KEY, []);
-      const previousProfile = readJSON<ClubProfile | null>(PROFILE_KEY, null);
-
-      if (!writeJSON(CONTENTS_KEY, backup.contents)) {
-        throw new Error("Impossible d'enregistrer les contenus dans ce navigateur.");
-      }
-      if (!writeJSON(PROFILE_KEY, backup.profile)) {
-        writeJSON(CONTENTS_KEY, previousContents);
-        writeJSON(PROFILE_KEY, previousProfile);
-        throw new Error("Impossible d'enregistrer le profil dans ce navigateur.");
-      }
-
+      setPendingBackup(backup);
       setBackupMsg(
-        `Sauvegarde restaurée : ${backup.contents.length} contenu(s) et ${backup.profile ? "un profil club" : "aucun profil club"}.`,
+        `Fichier vérifié : ${backup.contents.length} contenu(s) et ${backup.profile ? "un profil club" : "aucun profil club"}. Confirme la restauration pour remplacer tes données actuelles.`,
       );
     } catch (error) {
       setBackupError(true);
@@ -93,6 +84,32 @@ function Settings() {
     } finally {
       input.value = "";
     }
+  };
+
+  const restoreBackup = () => {
+    if (!pendingBackup) return;
+    const backup = pendingBackup;
+    const previousContents = readJSON<ContentItem[]>(CONTENTS_KEY, []);
+    const previousProfile = readJSON<ClubProfile | null>(PROFILE_KEY, null);
+
+    if (!writeJSON(CONTENTS_KEY, backup.contents)) {
+      setBackupError(true);
+      setBackupMsg("Impossible d'enregistrer les contenus dans ce navigateur. Tes données actuelles n'ont pas été remplacées.");
+      return;
+    }
+    if (!writeJSON(PROFILE_KEY, backup.profile)) {
+      writeJSON(CONTENTS_KEY, previousContents);
+      writeJSON(PROFILE_KEY, previousProfile);
+      setBackupError(true);
+      setBackupMsg("Impossible d'enregistrer le profil. La restauration a échoué ; vérifie que tes données actuelles sont toujours présentes.");
+      return;
+    }
+
+    setPendingBackup(null);
+    setBackupError(false);
+    setBackupMsg(
+      `Sauvegarde restaurée : ${backup.contents.length} contenu(s) et ${backup.profile ? "un profil club" : "aucun profil club"}.`,
+    );
   };
 
   const exportFile = () => {
@@ -140,6 +157,28 @@ function Settings() {
           <p className="text-xs text-muted-foreground">
             La restauration remplace le profil et la bibliothèque présents dans ce navigateur. Exporte d'abord une sauvegarde si tu veux conserver les données actuelles.
           </p>
+          {pendingBackup && (
+            <div className="rounded-xl border border-warning p-3" role="alert">
+              <p className="text-sm font-bold">Remplacer les données actuelles par cette sauvegarde ?</p>
+              <p className="mt-1 text-xs text-muted-foreground">Cette action remplace ton profil et tous les contenus enregistrés dans ce navigateur.</p>
+              <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+                <button type="button" className="btn btn-danger" onClick={restoreBackup}>
+                  Confirmer la restauration
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-outline"
+                  onClick={() => {
+                    setPendingBackup(null);
+                    setBackupMsg("Restauration annulée. Tes données actuelles sont conservées.");
+                    setBackupError(false);
+                  }}
+                >
+                  Annuler
+                </button>
+              </div>
+            </div>
+          )}
         </div>
         {backupMsg && (
           <p
