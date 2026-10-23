@@ -26,6 +26,14 @@ describe("generator", () => {
     const r = generate(SAMPLE_PROFILE, { ...base, goal: "evenement", variants: 5 });
     expect(r.pieces.some((p) => p.caption.includes(TODO))).toBe(true);
   });
+  it("avoids presenting unverified club claims as facts", () => {
+    const goals = ["essai", "evenement", "cours", "communaute", "conseils", "promo"] as const;
+    for (const goal of goals) {
+      const result = generate(SAMPLE_PROFILE, { ...base, goal, format: "weekly" }, 17);
+      const copy = JSON.stringify(result).toLowerCase();
+      expect(copy).not.toMatch(/nos coachs adaptent|nos membres reviennent|vous adorez|ambiance garantie|courbatures offertes|des membres se dépassent/);
+    }
+  });
   it("personalizes with club name", () => {
     expect(generate(SAMPLE_PROFILE, base).title).toContain("Studio Atlas");
   });

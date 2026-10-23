@@ -40,7 +40,7 @@ const TONE_END: Record<Tone, string[]> = {
   Motivant: ["On y va ? 💪", "Pas d'excuse, juste un premier pas.", "Ta meilleure version commence ici. 🔥"],
   Bienveillant: ["À ton rythme, toujours.", "Ici, chacun avance à sa façon. 🤍", "On t'accueille comme tu es."],
   Expert: ["La progression, c'est de la méthode.", "Technique d'abord, intensité ensuite.", "Chaque séance a un objectif."],
-  Fun: ["Viens transpirer avec nous 😄", "Ambiance garantie, courbatures offertes 😅", "Bonne humeur obligatoire 🎉"],
+  Fun: ["Viens bouger avec nous 😄", "Un peu de mouvement, beaucoup d'énergie 😅", "Prêt·e à bouger ? 🎉"],
 };
 
 type Ctx = { club: string; sport: string; town: string; audience: string; topic: string; classInfo: string; event: string };
@@ -58,7 +58,7 @@ const HOOKS: Record<GoalId, ((c: Ctx) => string)[]> = {
     (c) => `Un moment à vivre ensemble à ${c.town}.`,
   ],
   cours: [
-    (c) => `Zoom sur un cours que vous adorez : ${c.topic || c.classInfo || TODO}`,
+    (c) => `Zoom sur un cours à découvrir : ${c.topic || c.classInfo || TODO}`, 
     (c) => `Tu connais ce créneau chez ${c.club} ?`,
     (c) => `Ce qui se passe vraiment pendant ce cours 👇`,
   ],
@@ -73,7 +73,7 @@ const HOOKS: Record<GoalId, ((c: Ctx) => string)[]> = {
     (c) => `Conseil du coach : ${c.topic || "progresser sans se blesser"}`,
   ],
   promo: [
-    (c) => `Une offre à saisir chez ${c.club} 👀`,
+    (c) => `Une annonce à découvrir chez ${c.club} 👀`, 
     (c) => `Moment idéal pour nous rejoindre à ${c.town}.`,
     (c) => `On a pensé à toi qui voulais t'y mettre.`,
   ],
@@ -81,27 +81,27 @@ const HOOKS: Record<GoalId, ((c: Ctx) => string)[]> = {
 
 const BODIES: Record<GoalId, ((c: Ctx) => string)[]> = {
   essai: [
-    (c) => `Chez ${c.club}, ta première séance est pensée pour ${c.audience || "les débutants comme les confirmés"}. Accueil, échauffement guidé, mouvements adaptés à ton niveau : tu n'as rien à prouver, juste à venir.${c.topic ? `\n\nThème du moment : ${c.topic}.` : ""}`,
-    (c) => `Pas besoin d'être déjà sportif·ve pour commencer. Nos coachs adaptent chaque exercice. Tu repars avec une idée claire de ce qui t'attend et de comment progresser.${c.classInfo ? `\n\nAu programme du club : ${c.classInfo}.` : ""}`,
+    (c) => `Envie de découvrir ${c.club} ? Présente ici le déroulement réel de ta première séance et les informations utiles pour venir.\n\nÀ préciser : ${c.audience ? `public visé (${c.audience})` : "public accueilli"}, accueil et adaptation des exercices : ${TODO}.${c.topic ? `\n\nThème du moment : ${c.topic}.` : ""}`, 
+    (c) => `Tu veux commencer ? Explique ici comment se déroule une séance et comment le club accompagne les nouveaux participants.\n\nDétails de l'accueil : ${TODO}.${c.classInfo ? `\n\nAu programme indiqué par le club : ${c.classInfo}.` : ""}`, 
   ],
   evenement: [
     (c) => `${c.club} organise un moment spécial${c.topic ? ` : ${c.topic}` : ""}.\n\n📅 Infos pratiques : ${c.event || TODO}\n\nMembres, ami·es, curieux·ses : vous êtes les bienvenu·es.`,
     (c) => `On prépare quelque chose pour la communauté${c.topic ? ` autour de « ${c.topic} »` : ""}.\n\nDétails : ${c.event || TODO}\n\nPartage ce post avec la personne que tu veux embarquer.`,
   ],
   cours: [
-    (c) => `Ce cours, c'est ${c.topic || TODO}. Idéal pour ${c.audience || "tous les niveaux"}. Encadrement par un coach, progression semaine après semaine.\n\nHoraires : ${TODO}`,
-    (c) => `Pourquoi nos membres reviennent sur ce créneau ? L'énergie du groupe, un coach attentif et un format qui va droit au but.${c.classInfo ? `\n\nInfos : ${c.classInfo}.` : ""}`,
+    (c) => `Ce cours, c'est ${c.topic || TODO}. Public concerné : ${c.audience || TODO}.\n\nDéroulement, encadrement et horaires : ${TODO}`, 
+    (c) => `Présente ce créneau : son objectif, les exercices proposés et ce qu'il faut prévoir.${c.classInfo ? `\n\nInfos communiquées par le club : ${c.classInfo}.` : `\n\nInformations pratiques : ${TODO}.`}`, 
   ],
   communaute: [
-    (c) => `Chaque semaine, des membres se dépassent, s'encouragent et se retrouvent. C'est ça, l'esprit ${c.club}.${c.topic ? `\n\nCette semaine : ${c.topic}.` : ""}\n\nDis-nous en commentaire ce que tu préfères au club 👇`,
-    (c) => `Derrière chaque séance, il y a des visages, des progrès et des fous rires. Merci de faire de ${c.club} un lieu où l'on a envie de revenir.`,
+    (c) => `Qu'est-ce qui fait l'esprit de ${c.club} ? Partage une activité, une valeur ou un moment qui représente réellement ta communauté.${c.topic ? `\n\nÀ l'honneur : ${c.topic}.` : ""}\n\nDis-nous en commentaire ce que tu apprécies au club 👇`, 
+    (c) => `La vie d'un club se construit au fil des séances et des rencontres. Qu'est-ce qui compte le plus pour toi chez ${c.club} ?`, 
   ],
   conseils: [
     (c) => `1. Échauffe-toi vraiment (5 à 10 min).\n2. Priorise la technique avant la charge.\n3. Hydrate-toi et récupère.\n\n${c.topic ? `Spécial « ${c.topic} » : ` : ""}en cas de doute, demande à ton coach — c'est son rôle.`,
     (c) => `Progresser, ce n'est pas tout donner à chaque séance. C'est être régulier·ère, écouter son corps et suivre un plan.${c.topic ? `\n\nAujourd'hui on parle de : ${c.topic}.` : ""}`,
   ],
   promo: [
-    (c) => `${c.club} propose une offre${c.topic ? ` : ${c.topic}` : ""}.\n\nConditions et tarif : ${TODO}\nValable jusqu'au : ${TODO}`,
+    (c) => `Prépare une annonce pour ${c.club}${c.topic ? ` : ${c.topic}` : ""}.\n\nDétail exact de l'offre ou de l'actualité : ${TODO}\nConditions et tarif, si applicable : ${TODO}\nDate de fin, si applicable : ${TODO}`, 
     (c) => `Envie de commencer ? C'est le bon moment.\n\nDétails de l'offre : ${c.event || TODO}\n\nPlaces et conditions à confirmer auprès du club.`,
   ],
 };
@@ -162,8 +162,8 @@ function makePiece(kind: Piece["kind"], label: string, profile: ClubProfile | nu
   if (kind === "carousel") {
     caption = [
       `Slide 1 — Accroche : ${hook}`,
-      `Slide 2 — Le constat : ${pick(r, ["ce que vivent beaucoup de débutants", "pourquoi on repousse souvent", "ce qu'on entend souvent au club"])}`,
-      `Slide 3 — Notre approche chez ${ctx.club}`,
+      `Slide 2 — Le point de départ : ${pick(r, ["une question à se poser", "un objectif à définir", "une difficulté à explorer"])}`, 
+      `Slide 3 — L'approche de ${ctx.club} : ${ctx.topic || ctx.classInfo || TODO}`, 
       `Slide 4 — Concrètement : ${ctx.topic || ctx.classInfo || TODO}`,
       `Slide 5 — ${end}`,
       `Slide 6 — Appel à l'action : ${cta}`,
