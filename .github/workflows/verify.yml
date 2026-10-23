@@ -27,17 +27,17 @@ jobs:
         with:
           node-version: 22
 
-      - name: Utiliser une version stable de npm
-        run: npm install --global npm@9.9.4
+      - name: Installer pnpm
+        run: npm install --global pnpm@10.6.5
 
       - name: Installer les dépendances
-        run: npm install --no-audit --no-fund
+        run: pnpm install --no-frozen-lockfile
 
       - name: Exécuter les tests
-        run: npm test
+        run: pnpm test
 
       - name: Vérifier le code
-        run: npm run lint
+        run: pnpm lint
 
       - name: Construire l'application
-        run: npm run build
+        run: pnpm build
