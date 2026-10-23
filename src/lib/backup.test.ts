@@ -38,6 +38,10 @@ describe("ClubPost backup", () => {
     expect(parsed.contents).toEqual([]);
   });
 
+  it("rejects malformed JSON with a readable message", () => {
+    expect(() => parseBackup("{not-json")).toThrow(/JSON valide/);
+  });
+
   it("rejects an unsupported version or malformed content", () => {
     const backup = createBackup(null, [content]);
     expect(() => parseBackup(JSON.stringify({ ...backup, version: 2 }))).toThrow(/valide/);
